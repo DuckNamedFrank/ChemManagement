@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ChemManagement Inventory</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Lab Chemical Inventory</p>
+        <h1>ChemManagement</h1>
+        <p class="subtitle">
+          Track chemical bottles, locations, SDS links, NFPA ratings, and reorder timelines in one place.
+        </p>
+      </div>
+      <div class="hero-card">
+        <h2>Quick Add</h2>
+        <p>Lookup by CAS to prefill common details, then save to the inventory list.</p>
+        <button id="open-add-modal" class="primary">Add Chemical</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Inventory</h2>
+            <p class="muted">Each bottle gets a unique ID. Same chemicals share a parent ID.</p>
+          </div>
+          <div class="filters">
+            <input id="search" type="search" placeholder="Search by name, CAS, or location" />
+            <select id="filter-location">
+              <option value="">All Locations</option>
+            </select>
+          </div>
+        </div>
+        <div id="inventory-empty" class="empty-state">
+          <h3>No chemicals yet</h3>
+          <p>Add your first chemical to start tracking bottles and expiration dates.</p>
+          <button id="add-first" class="primary">Add Chemical</button>
+        </div>
+        <div id="inventory-table" class="table-wrapper hidden">
+          <table>
+            <thead>
+              <tr>
+                <th>Group ID</th>
+                <th>Bottle ID</th>
+                <th>Chemical</th>
+                <th>CAS</th>
+                <th>Location</th>
+                <th>SDS / NFPA</th>
+                <th>Order Date</th>
+                <th>Expiration</th>
+              </tr>
+            </thead>
+            <tbody id="inventory-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel split">
+        <div>
+          <h2>How bottle IDs work</h2>
+          <ol>
+            <li>Each unique chemical gets a parent ID (example: <strong>CHEM-0003</strong>).</li>
+            <li>Every bottle becomes a child ID (example: <strong>CHEM-0003-02</strong>).</li>
+            <li>When new bottles are ordered later, the child number continues to increment.</li>
+          </ol>
+        </div>
+        <div class="callout">
+          <h3>CAS Lookup Sources</h3>
+          <p>
+            Prefills pull from saved references to Sigma Aldrich, Spectrum, and Fisher. Update SDS links
+            if your lab uses a different supplier.
+          </p>
+          <ul>
+            <li>sigmaaldrich.com</li>
+            <li>spectrumchemical.com</li>
+            <li>fishersci.com</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <dialog id="chemical-modal">
+      <form id="chemical-form">
+        <div class="modal-header">
+          <div>
+            <h2>Add Chemical Bottle(s)</h2>
+            <p class="muted">Fill out manually or lookup by CAS to autofill core data.</p>
+          </div>
+          <button type="button" id="close-modal" class="ghost">Close</button>
+        </div>
+
+        <div class="lookup">
+          <label>
+            CAS Number
+            <input id="cas-input" name="cas" type="text" placeholder="64-17-5" />
+          </label>
+          <button type="button" id="lookup" class="secondary">Lookup CAS</button>
+          <p id="lookup-status" class="muted"></p>
+        </div>
+
+        <div class="grid">
+          <label>
+            Chemical Name
+            <input id="name" name="name" type="text" required />
+          </label>
+          <label>
+            Location
+            <input id="location" name="location" type="text" placeholder="Building 3 / Room 224 / Cabinet B" required />
+          </label>
+          <label>
+            Supplier
+            <input id="supplier" name="supplier" type="text" placeholder="Sigma Aldrich" />
+          </label>
+          <label>
+            SDS URL
+            <input id="sds" name="sds" type="url" placeholder="https://..." />
+          </label>
+          <label>
+            NFPA Rating
+            <input id="nfpa" name="nfpa" type="text" placeholder="2-3-0" />
+          </label>
+          <label>
+            Order Date
+            <input id="order-date" name="orderDate" type="date" />
+          </label>
+          <label>
+            Expiration Date
+            <input id="expiration" name="expiration" type="date" />
+          </label>
+          <label>
+            Number of Bottles
+            <input id="bottle-count" name="bottleCount" type="number" min="1" value="1" />
+          </label>
+        </div>
+
+        <div class="modal-footer">
+          <button type="reset" class="ghost">Reset</button>
+          <button type="submit" class="primary">Add to Inventory</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script src="app.js"></script>
+  </body>
+</html>
