@@ -1,0 +1,110 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// Chemical type/compound information (parent record)
+model Chemical {
+  id              Int       @id @default(autoincrement())
+  casNumber       String?   @unique
+  name            String
+  formula         String?
+  molecularWeight Float?
+
+  // NFPA 704 Diamond ratings (0-4)
+  nfpaHealth      Int?
+  nfpaFire        Int?
+  nfpaReactivity  Int?
+  nfpaSpecial     String?   // Special hazards: OX, W, SA, etc.
+
+  // SDS Information
+  sdsUrl          String?
+  supplier        String?
+
+  // Metadata
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  bottles         Bottle[]
+
+  @@index([name])
+  @@index([casNumber])
+}
+
+// Individual bottle instances
+model Bottle {
+  id              Int       @id @default(autoincrement())
+
+  // Unique bottle identifier (e.g., "CHEM001-1", "CHEM001-2")
+  bottleId        String    @unique
+  parentId        String    // Parent identifier (e.g., "CHEM001")
+  childNumber     Int       // Child number (1, 2, 3, etc.)
+
+  // Reference to chemical type
+  chemicalId      Int
+  chemical        Chemical  @relation(fields: [chemicalId], references: [id], onDelete: Cascade)
+
+  // Location
+  locationId      Int?
+  location        Location? @relation(fields: [locationId], references: [id])
+
+  // Quantity information
+  quantity        Float?
+  unit            String?   // mL, L, g, kg, etc.
+
+  // Dates
+  orderDate       DateTime?
+  expirationDate  DateTime?
+  receivedDate    DateTime?
+
+  // Status
+  status          String    @default("active") // active, empty, disposed, expired
+
+  // Additional info
+  lotNumber       String?
+  poNumber        String?
+  notes           String?
+
+  // Metadata
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([parentId])
+  @@index([chemicalId])
+  @@index([locationId])
+  @@index([status])
+}
+
+// Storage locations
+model Location {
+  id              Int       @id @default(autoincrement())
+  name            String
+  description     String?
+  room            String?
+  building        String?
+  storageType     String?   // Cabinet, Shelf, Refrigerator, Freezer, Flammable Cabinet, etc.
+
+  // Metadata
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  bottles         Bottle[]
+
+  @@unique([name, room, building])
+}
+
+// Track the next parent ID number for generating unique IDs
+model IdCounter {
+  id              Int       @id @default(autoincrement())
+  prefix          String    @unique @default("CHEM")
+  currentNumber   Int       @default(0)
+}
